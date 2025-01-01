@@ -41,11 +41,12 @@ impl Spell {
     }
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone)]
 struct Evaluation {
     player: Player,
     boss: Boss,
     next_spell: Spell,
+    list_of_spells: Vec<Spell>,
 }
 
 pub fn solve_pt1(data: &str) {
@@ -77,10 +78,11 @@ fn solve_internal<const IS_PT2: bool>(data: &str) {
 
     let mut evaluations = vec![];
     for spell in Spell::iter() {
-        evaluations.push(Evaluation{player, boss, next_spell: spell});
+        evaluations.push(Evaluation{player, boss, next_spell: spell, list_of_spells: vec![spell]});
     }
 
     let mut min_mana_spent = u32::MAX;
+    let mut best_spell_sequence:Vec<Spell> = vec![];
 
     while let Some(evaluation) = evaluations.pop() {
         let mut new_player = evaluation.player;
@@ -106,6 +108,7 @@ fn solve_internal<const IS_PT2: bool>(data: &str) {
             if new_boss.hp <= 3 {
                 if new_player.total_mana_spent < min_mana_spent {
                     min_mana_spent = new_player.total_mana_spent;
+                    best_spell_sequence = evaluation.list_of_spells.clone();
                 }
                 continue;
             }
@@ -145,6 +148,7 @@ fn solve_internal<const IS_PT2: bool>(data: &str) {
         if damage >= new_boss.hp {
             if new_player.total_mana_spent < min_mana_spent {
                 min_mana_spent = new_player.total_mana_spent;
+                best_spell_sequence = evaluation.list_of_spells.clone();
             }
             continue;
         }
@@ -165,6 +169,7 @@ fn solve_internal<const IS_PT2: bool>(data: &str) {
             if new_boss.hp <= 3 {
                 if new_player.total_mana_spent < min_mana_spent {
                     min_mana_spent = new_player.total_mana_spent;
+                    best_spell_sequence = evaluation.list_of_spells.clone();
                 }
                 continue;
             }
@@ -187,7 +192,7 @@ fn solve_internal<const IS_PT2: bool>(data: &str) {
                 continue;
             }
 
-            evaluations.push(Evaluation{player: new_player, boss: new_boss, next_spell: spell});
+            evaluations.push(Evaluation{player: new_player, boss: new_boss, next_spell: spell, list_of_spells: evaluation.list_of_spells.clone().into_iter().chain(vec![spell]).collect()});
         }
         evaluations.sort_unstable_by(|a, b| a.boss.hp.cmp(&b.boss.hp).reverse());
     }
@@ -196,6 +201,7 @@ fn solve_internal<const IS_PT2: bool>(data: &str) {
         println!("No solution found");
     } else {
         println!("Minimum mana spent: {}", min_mana_spent);
+        println!("Best spell sequence: {:?}", best_spell_sequence);
     }
 }
 
