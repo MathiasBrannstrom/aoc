@@ -6,7 +6,7 @@ edition = "2021"
 [dependencies]
 # md5 = "0.7.0"
 itertools = "0.14.0"
-# regex = "1.11.1"
+regex = "1.11.1"
 # json = "0.12.4"
 
 [lib]
