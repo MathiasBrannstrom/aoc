@@ -96,31 +96,30 @@ pub fn solve_pt1(data: &str) -> Result<(), Box<dyn std::error::Error>> {
     let mut data_iter = data.lines();
 
     let reg_a:u64 = data_iter
-    .next()
-    .and_then(|line| line.strip_prefix("Register A: "))
-    .and_then(|n| n.parse().ok()).unwrap();
+    .next().unwrap()
+    .strip_prefix("Register A: ").unwrap()
+    .parse()?;
 
     registers[REGISTER_A] = reg_a;
 
     let reg_b:u64 = data_iter
-    .next()
-    .and_then(|line| line.strip_prefix("Register B: "))
-    .and_then(|n| n.parse().ok()).unwrap();
-
+    .next().unwrap()
+    .strip_prefix("Register B: ").unwrap()
+    .parse()?;
     registers[REGISTER_B] = reg_b;
 
     let reg_c:u64 = data_iter
-    .next()
-    .and_then(|line| line.strip_prefix("Register C: "))
-    .and_then(|n| n.parse().ok()).unwrap();
+    .next().unwrap()
+    .strip_prefix("Register C: ").unwrap()
+    .parse()?;
 
     registers[REGISTER_C] = reg_c;
 
     data_iter.next();
 
     let instructions_as_numbers:Vec<u64> = data_iter
-    .next().unwrap()
-    .strip_prefix("Program: ").unwrap()
+    .next().ok_or("No more data")?
+    .strip_prefix("Program: ").ok_or("Parse error")?
     .split(",")
     .map(|x| x.parse().unwrap())
     .collect();
