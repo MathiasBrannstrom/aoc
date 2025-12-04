@@ -1,5 +1,7 @@
 // https://adventofcode.com/2024/day/14
 
+use std::io;
+
 #[derive(Debug, Clone)]
 struct Robot {
     x: i32,
@@ -102,14 +104,18 @@ fn check_for_tree(robots: &Vec<Robot>, grid: &mut Vec<Vec<char>>, time: i32) {
 
     if robots_with_3_or_more_neighbors > robots.len() / 3 {
         println!("Time: {}", time);
-        for row in grid.iter() {
-            println!("{}", row.iter().collect::<String>());
-        }
-        println!();
+        print_grid(grid);
     }
 }
 
-pub fn solve_pt2(data: &str) -> Result<(), Box<dyn std::error::Error>> {
+fn print_grid(grid: &[Vec<char>]) {
+    for row in grid.iter() {
+        println!("{}", row.iter().collect::<String>());
+    }
+    println!();
+}
+
+pub fn solve_pt2(data: &str, step_through_manually: bool) -> Result<(), Box<dyn std::error::Error>> {
 
     let re = regex::Regex::new(r"p=(\d+),(\d+) v=(-?\d+),(-?\d+)")?;
 
@@ -134,6 +140,14 @@ pub fn solve_pt2(data: &str) -> Result<(), Box<dyn std::error::Error>> {
             robot.y = (robot.y + robot.vy + size_y) % size_y;
         }
         
+        if step_through_manually {
+            print_grid(&grid);
+            let mut input = String::new();
+                io::stdin()
+                .read_line(&mut input)
+                .expect("Failed to read line");
+        }
+
         check_for_tree(&robots, &mut grid, time);
 
         if time == 10403 {
@@ -160,7 +174,7 @@ mod tests {
     #[test]
     fn test_solve_pt2() {
         let data = include_str!("day_14_input");
-        let result = solve_pt2(data);
+        let result = solve_pt2(data, false);
         println!("{:?}", result);
     }
 

@@ -1,0 +1,19 @@
+Let's see the bits in A as a sequence of 3-bit numbers, and rewrite the explanation with that in mind.
+
+Bst(4), B = A % 8       This operation now means to set B to the last 3-bit number in sequence A 
+Bxl(7), B = B ^ 7       Invert bits of B           
+
+Cdv(5), C = A >> B      Set C to A bit-shifted B times. This is still complicated, 
+                        it can use bits from earlier numbers in the A sequence, 
+                        even partial bits from the number.
+
+Bxc,    B = B ^ C       XOR the bits from C into B :(
+
+Bxl(7), B = B ^ 7       Invert bits of B
+Out(5), OUT B           Output B modulo 8
+
+Adv(3), A = A >> 3      This bit-shift now means removing the last 3-bit number in the sequence A.
+Jnz(0)                  Loop if there is any number still in the sequence A. (no need to consider the sequence of only a 0)
+
+
+2,4,  1,7,  7,5,  0,3,  4,0,  1,7,  5,5,  3,0

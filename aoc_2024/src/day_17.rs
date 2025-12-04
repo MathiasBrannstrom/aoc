@@ -188,7 +188,6 @@ fn dfs_starting_with_lowest(a:u64, nums: &[u64]) -> Option<u64> {
             }
         }
     }
-    // println!("{}",nums.len());
     
     Option::None
 }
@@ -197,6 +196,29 @@ fn dfs_starting_with_lowest(a:u64, nums: &[u64]) -> Option<u64> {
 #[cfg(test)]
 mod tests {
     use super::{solve_pt1, solve_pt2};
+
+
+    #[test]
+    fn pt1_example_1() {
+        let data = 
+r"Register A: 8
+Register B: 3
+Register C: 4
+
+Program: 0,2,5,4,5,5,5,6";
+        _ = solve_pt1(data);
+    }
+
+    #[test]
+    fn pt1_example_2() {
+        let data = 
+r"Register A: 32
+Register B: 0
+Register C: 0
+
+Program: 5,4,0,1,3,0";
+        _ = solve_pt1(data);
+    }
 
     #[test]
     fn test_solve_pt1() {
