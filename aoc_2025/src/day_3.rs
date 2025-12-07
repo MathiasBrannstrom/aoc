@@ -41,13 +41,7 @@ pub fn solve_pt2(data: &str) {
                 .map(|x| x.to_string().parse().unwrap())
                 .collect();
 
-            let mut batteries_left = 12;
-            let b_count = batteries.len();
-
-            let joltage = find_max_joltage(&batteries, 12) / 10;
-
-            // println!("{}", joltage);
-            joltage
+            find_max_joltage(&batteries, 12) / 10
         })
         .sum();
 
@@ -62,7 +56,7 @@ fn find_max_joltage(bank: &[u32], n_turn_on: u32) -> u64 {
     let mut max = 0;
     let mut best_index = 1;
 
-    for i in (0..(bank.len() as u32 - n_turn_on + 1) as usize) {
+    for i in 0..(bank.len() as u32 - n_turn_on + 1) as usize {
         if bank[i] > max {
             max = bank[i];
             best_index = i;
