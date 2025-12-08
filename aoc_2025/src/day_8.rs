@@ -55,6 +55,10 @@ pub fn solve_pt1(data: &str, is_test: bool) {
         let c0 = position_to_circuit_map[&p0];
         let c1 = position_to_circuit_map[&p1];
 
+        if c0 == c1 {
+            continue;
+        }
+
         // Move all positions from c1 to c0
         let mut positions_to_move = circuits[c1].clone();
         for p in positions_to_move.iter().copied() {
@@ -108,6 +112,10 @@ pub fn solve_pt2(data: &str) {
         let c0 = position_to_circuit_map[&p0];
         let c1 = position_to_circuit_map[&p1];
 
+        if c0 == c1 {
+            continue;
+        }
+        
         // Move all positions from c1 to c0
         let mut positions_to_move = circuits[c1].clone();
         for p in positions_to_move.iter().copied() {
