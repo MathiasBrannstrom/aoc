@@ -1,7 +1,7 @@
-mod day_7;
-use crate::day_7::solve_pt2;
+mod day_8;
+use crate::day_8::{solve_pt1, solve_pt2};
 
 fn main() {
-    let data = include_str!("input/day_7_input");
+    let data = include_str!("inputs/day_8_input");
     solve_pt2(data);
 }
