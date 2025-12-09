@@ -1,9 +1,9 @@
-use std::str::FromStr;
+use std::{str::FromStr, vec};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 struct Position {
-    x: i64,
-    y: i64
+    r: i64,
+    c: i64
 }
 
 impl FromStr for Position {
@@ -13,13 +13,13 @@ impl FromStr for Position {
         let mut sp = s.split(',').map(str::parse::<i64>);
         let x = sp.next().ok_or("Missing x")?.map_err(|_| "invalid x")?;
         let y = sp.next().ok_or("Missing y")?.map_err(|_| "Invalid y")?;
-        Ok(Self{ x, y })
+        Ok(Self{ r: y, c: x })
     }
 }
 
 impl Position {
     pub fn RectangleArea(&self, other: &Position) -> i64 {
-        ((self.x-other.x).abs() + 1) * ((self.y-other.y).abs() + 1)
+        ((self.r-other.r).abs() + 1) * ((self.c-other.c).abs() + 1)
     }
 }
 
@@ -42,25 +42,104 @@ pub fn solve_pt2(data: &str) -> i64 {
     positions.append(&mut positions.clone());
 
 
+    let max_r = positions.iter().max_by_key(|p| p.r).unwrap().r + 2;
+    let max_c = positions.iter().max_by_key(|p| p.c).unwrap().c + 2;
+
+    let mut last_pos = positions.last().unwrap();
+    let mut horizontal_lines:Vec<(Position, Position)> = vec![];
+    let mut vertical_lines:Vec<(Position, Position)> = vec![];
+    for p in positions.iter() {
+        let dir = ((p.r - last_pos.r).signum(), (p.c - last_pos.c).signum());
+
+        if dir.0.abs() == 1 {
+            vertical_lines.push((*last_pos, *p));
+        } else {
+            horizontal_lines.push((*last_pos, *p));
+        }
+
+        last_pos = &p;
+    }
+
+
+    let mut combinations:Vec<(Position, Position)> = vec![];
+    for (i, p0) in positions[0..positions.len()-1].iter().enumerate() {
+        for p1 in positions[i..].iter() {
+            let min = Position{r: p0.r.min(p1.r), c: p0.c.min(p1.c)};
+            let max = Position{r: p0.r.max(p1.r), c: p0.c.max(p1.c)};
+
+            combinations.push((min, max));
+        }
+    }
+    let count = combinations.len();
     let mut max_valid_area = 0;
+    for (i,combination) in combinations.iter().enumerate() {
+        
+        if i % 10000 == 0 {
+            println!("{} / {}", i, count);
+        }
 
-    // for (i,p0) in positions[0..count].iter().enumerate() {
-    //     let mut current_direction = 
-    //     for p1 in positions[i+1..i+count].iter() {
-            
-    //     }
-    // }
+        // Check four corners. If any outside, reject combination.
 
-    // max_valid_area
-    // let mut combinations:Vec<(Position, Position)> = vec![];
-    // for (i, p0) in positions[0..positions.len()-1].iter().enumerate() {
-    //     for p1 in positions[i..].iter() {
-    //         let min = Position{x: p0.x.min(p1.x), y: p0.y.min(p1.y)};
-    //         let max = Position{x: p0.x.max(p1.x), y: p0.y.max(p1.y)};
+        // Check all rectangle sides against all lines of shape. If any have a crossing, reject combination.
+        // Having the side touching the line is OK.
 
-    //         combinations.push((min, max));
-    //     }
-    // }
+        let mut vertical_sides = vec![];
+        let mut horizontal_sides = vec![];
+
+        let c00 = combination.0;
+        let c11 = combination.1;
+        let c01 = Position{r:combination.0.r, c:combination.1.c};
+        let c10 = Position{r:combination.1.r, c:combination.0.c};
+
+        horizontal_sides.push((c00, c01));
+        vertical_sides.push((c00, c10));
+        vertical_sides.push((c11, c10));
+        horizontal_sides.push((c11, c01));
+
+        let mut valid_combination = true;
+        'sidesCheck: for (s0, s1) in vertical_sides {
+            let c = s0.c;
+
+            let min_r = s0.r.min(s1.r);
+            let max_r = s0.r.max(s1.r);
+            for (l0, l1) in horizontal_lines.iter().copied() {
+                let l_r = l0.r;
+                let l_min_c = l0.c.min(l1.c);
+                let l_max_c = l0.c.max(l1.c);
+
+                if c >= l_min_c && c <= l_max_c && min_r < l_r && max_r > l_r {
+                    valid_combination = false;
+                    break 'sidesCheck;
+                }
+            }
+        }
+        'sidesCheck: for (s0, s1) in horizontal_sides {
+            let r = s0.r;
+
+            let min_c = s0.c.min(s1.c);
+            let max_c = s0.c.max(s1.c);
+            for (l0, l1) in vertical_lines.iter().copied() {
+                let l_c = l0.c;
+                let l_min_r = l0.r.min(l1.r);
+                let l_max_r = l0.r.max(l1.r);
+
+                if r >= l_min_r && r <= l_max_r && min_c < l_c && max_c > l_c {
+                    valid_combination = false;
+                    break 'sidesCheck;
+                }
+            }
+        }
+
+
+        if valid_combination {
+            let area = combination.0.RectangleArea(&combination.1);
+            if area > max_valid_area {
+                max_valid_area = area;
+            }
+        }
+    }
+
+    max_valid_area
     // println!("{}", combinations.len());
     // let filtered:Vec<(Position, Position)> = combinations.iter().copied()
     // .filter(|c| no_corner_inside(c, &positions)).collect();
@@ -80,8 +159,8 @@ fn no_corner_inside(corners: &(Position, Position), positions: &[Position]) -> b
     
     for p in positions {
         if 
-        p.x > corners.0.x && p.x < corners.1.x &&
-        p.y > corners.0.y && p.y < corners.1.y {
+        p.r > corners.0.r && p.r < corners.1.r &&
+        p.c > corners.0.c && p.c < corners.1.c {
             return false;
         }
     }
